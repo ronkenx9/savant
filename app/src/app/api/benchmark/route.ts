@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { trainedAnswer } from "@/lib/inference";
-import { TrainedState } from "@/lib/state";
+import { TrainedState, intelligenceOf } from "@/lib/state";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       baseline: state.baselineAnswer,
       trained,
       version: state.version,
-      intelligence: state.version,
+      intelligence: intelligenceOf(state),
     });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });

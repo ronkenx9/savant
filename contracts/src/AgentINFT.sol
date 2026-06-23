@@ -105,8 +105,6 @@ contract AgentINFT is ERC721 {
         require(ownerOf(tokenId) == msg.sender, "not owner");
         require(price > 0, "price = 0");
         listingPrice[tokenId] = price;
-        // approve contract to move the token on sale
-        _approve(address(this), tokenId, msg.sender);
         emit AgentListed(tokenId, price);
     }
 
@@ -127,14 +125,19 @@ contract AgentINFT is ERC721 {
         _transfer(seller, msg.sender, tokenId);
 
         // Pay the original trainer a royalty on resales (not the first sale).
+        // A failed royalty transfer must NOT brick the sale (origin could be a
+        // contract that rejects ETH) — in that case the royalty folds back into
+        // the seller's proceeds so the trade always settles.
         address origin = agents[tokenId].origin;
         uint256 royalty = 0;
         if (seller != origin && origin != address(0)) {
-            royalty = (price * ROYALTY_BPS) / BPS_DENOM;
-            if (royalty > 0) {
-                (bool rok, ) = payable(origin).call{value: royalty}("");
-                require(rok, "pay royalty failed");
-                emit RoyaltyPaid(tokenId, origin, royalty);
+            uint256 r = (price * ROYALTY_BPS) / BPS_DENOM;
+            if (r > 0) {
+                (bool rok, ) = payable(origin).call{value: r}("");
+                if (rok) {
+                    royalty = r;
+                    emit RoyaltyPaid(tokenId, origin, r);
+                }
             }
         }
 

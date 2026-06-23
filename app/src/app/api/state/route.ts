@@ -11,9 +11,11 @@ export async function GET(req: NextRequest) {
   if (!root) {
     return NextResponse.json({ error: "missing root" }, { status: 400 });
   }
-  const state = await getState(root);
+  // INHERIT pulls from 0G first — this read is the proof the trained state
+  // travels off decentralized storage, not a same-server cache.
+  const { state, source } = await getState(root, true);
   if (!state) {
     return NextResponse.json({ error: "state not found" }, { status: 404 });
   }
-  return NextResponse.json({ state });
+  return NextResponse.json({ state, source });
 }

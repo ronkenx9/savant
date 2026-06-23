@@ -77,16 +77,24 @@ export async function putState(state: TrainedState): Promise<PutResult> {
   return { root, source };
 }
 
-// Read a trained-state doc by root hash (local cache first; 0G as fallback).
-export async function getState(root: string): Promise<TrainedState | null> {
-  await ensureCache();
-  const cached = path.join(CACHE_DIR, `${root}.json`);
+export type GetResult = {
+  state: TrainedState | null;
+  source: "0g" | "local-cache" | "none";
+};
+
+async function readLocal(root: string): Promise<TrainedState | null> {
   try {
-    const buf = await fs.readFile(cached, "utf8");
+    const buf = await fs.readFile(
+      path.join(CACHE_DIR, `${root}.json`),
+      "utf8"
+    );
     return JSON.parse(buf);
   } catch {
-    // not in local cache — try pulling from 0G
+    return null;
   }
+}
+
+async function readRemote(root: string): Promise<TrainedState | null> {
   try {
     const { Indexer } = await import("@0gfoundation/0g-storage-ts-sdk");
     const indexer = new Indexer(INDEXER);
@@ -96,10 +104,31 @@ export async function getState(root: string): Promise<TrainedState | null> {
     const buf = await fs.readFile(out, "utf8");
     await fs.unlink(out).catch(() => {});
     const parsed = JSON.parse(buf);
-    await fs.writeFile(cached, buf); // re-cache
+    await fs.writeFile(path.join(CACHE_DIR, `${root}.json`), buf); // re-cache
     return parsed;
   } catch (e) {
     console.warn("[0g-storage] download failed:", (e as Error).message);
     return null;
   }
+}
+
+// Read a trained-state doc by root hash. `preferRemote` forces a genuine 0G
+// pull first (used by the buyer's INHERIT step, so the demo proves the state
+// really comes off 0G rather than a same-server cache); it falls back to the
+// local cache only if 0G is unreachable. Default reads are cache-first for speed.
+export async function getState(
+  root: string,
+  preferRemote = false
+): Promise<GetResult> {
+  await ensureCache();
+  if (preferRemote) {
+    const remote = await readRemote(root);
+    if (remote) return { state: remote, source: "0g" };
+    const local = await readLocal(root);
+    return { state: local, source: local ? "local-cache" : "none" };
+  }
+  const local = await readLocal(root);
+  if (local) return { state: local, source: "local-cache" };
+  const remote = await readRemote(root);
+  return { state: remote, source: remote ? "0g" : "none" };
 }

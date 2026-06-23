@@ -90,13 +90,24 @@ export default function Page() {
     setErr(null);
     setBusy("Minting blank INFT…");
     try {
-      await send("mint", [name]);
-      const total = (await publicClient!.readContract({
-        address: CONTRACT_ADDRESS,
-        abi: AGENT_ABI,
-        functionName: "totalMinted",
-      })) as bigint;
-      const tokenId = total;
+      const receipt = await send("mint", [name]);
+      // Read the real tokenId from the AgentMinted event — never guess it from
+      // totalMinted(), which races against any concurrent mint.
+      let tokenId: bigint | null = null;
+      for (const lg of receipt.logs) {
+        try {
+          const d = decodeEventLog({
+            abi: AGENT_ABI,
+            data: lg.data,
+            topics: lg.topics,
+          });
+          if (d.eventName === "AgentMinted") {
+            tokenId = (d.args as any).tokenId as bigint;
+            break;
+          }
+        } catch {}
+      }
+      if (tokenId === null) throw new Error("mint receipt missing AgentMinted event");
 
       setBusy("Pinning baseline state to 0G Storage…");
       const r = await fetch("/api/agent/init", {
@@ -246,9 +257,12 @@ export default function Page() {
       if (r.error) throw new Error(r.error);
       log({
         kind: "storage",
-        text: `inherited trained state from 0G · root ${short(a.stateRoot)}`,
+        text:
+          r.source === "0g"
+            ? `pulled trained state from 0G Storage · root ${short(a.stateRoot)}`
+            : `0G unreachable — read state from cache · root ${short(a.stateRoot)}`,
         href: `${ZG_STORAGE_EXPLORER}/file/${a.stateRoot}`,
-        badge: "0G STORAGE",
+        badge: r.source === "0g" ? "0G STORAGE" : "0G STORAGE (cached)",
       });
       setStateDoc(r.state);
       setAgent({

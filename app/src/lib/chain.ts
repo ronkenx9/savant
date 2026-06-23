@@ -115,6 +115,15 @@ export const AGENT_ABI = [
   },
   {
     type: "event",
+    name: "AgentMinted",
+    inputs: [
+      { name: "tokenId", type: "uint256", indexed: true },
+      { name: "owner", type: "address", indexed: true },
+      { name: "name", type: "string", indexed: false },
+    ],
+  },
+  {
+    type: "event",
     name: "AgentEvolved",
     inputs: [
       { name: "tokenId", type: "uint256", indexed: true },
