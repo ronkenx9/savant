@@ -1,0 +1,230 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  background: #ffffff;
+  color: #1d1d1f;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: -apple-system, system-ui, "SF Pro Text", Inter, sans-serif;
+  letter-spacing: -0.374px;
+}
+
+/* ── Typography helpers (DESIGN.md ladder) ─────────────────────────────────── */
+.t-hero {
+  font-family: -apple-system, system-ui, "SF Pro Display", Inter, sans-serif;
+  font-size: 56px;
+  font-weight: 600;
+  line-height: 1.07;
+  letter-spacing: -0.28px;
+}
+.t-display {
+  font-family: -apple-system, system-ui, "SF Pro Display", Inter, sans-serif;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+.t-lead {
+  font-family: -apple-system, system-ui, "SF Pro Display", Inter, sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.196px;
+}
+.t-tagline {
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.19;
+  letter-spacing: 0.231px;
+}
+.t-body {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+}
+.t-body-strong {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.24;
+  letter-spacing: -0.374px;
+}
+.t-caption {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+}
+.t-fine {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: -0.12px;
+}
+
+@media (max-width: 1068px) {
+  .t-hero {
+    font-size: 40px;
+  }
+}
+@media (max-width: 640px) {
+  .t-hero {
+    font-size: 34px;
+  }
+  .t-display {
+    font-size: 30px;
+  }
+}
+
+/* ── Buttons: two grammars only — blue pill + dark utility rect ─────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.12s ease, background-color 0.12s ease,
+    opacity 0.12s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+.btn:disabled {
+  opacity: 0.36;
+  cursor: not-allowed;
+}
+.btn:focus-visible {
+  outline: 2px solid #0071e3;
+  outline-offset: 2px;
+}
+
+.btn-pill {
+  background: #0066cc;
+  color: #fff;
+  border-radius: 9999px;
+  padding: 11px 22px;
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.374px;
+}
+.btn-ghost-pill {
+  background: transparent;
+  color: #0066cc;
+  border: 1px solid #0066cc;
+  border-radius: 9999px;
+  padding: 10px 21px;
+  font-size: 17px;
+  font-weight: 400;
+}
+.btn-utility {
+  background: #1d1d1f;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 15px;
+  font-size: 14px;
+  letter-spacing: -0.224px;
+}
+.btn-pill.on-dark,
+.btn-ghost-pill.on-dark {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+.btn-pill.on-dark {
+  background: #0066cc;
+}
+
+.link {
+  color: #0066cc;
+  cursor: pointer;
+}
+.link.on-dark {
+  color: #2997ff;
+}
+
+/* ── Surfaces ──────────────────────────────────────────────────────────────── */
+.tile {
+  width: 100%;
+}
+.util-card {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 18px;
+}
+.chip-pill {
+  border-radius: 9999px;
+  font-size: 14px;
+  letter-spacing: -0.224px;
+  padding: 8px 16px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.chip-pill[data-active="true"] {
+  border-color: #0071e3;
+  border-width: 2px;
+  color: #0066cc;
+  font-weight: 600;
+}
+.chip-pill:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.frosted {
+  background: rgba(245, 245, 247, 0.8);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+input,
+textarea {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 9999px;
+  color: #1d1d1f;
+  outline: none;
+  font-size: 17px;
+  letter-spacing: -0.374px;
+}
+textarea {
+  border-radius: 18px;
+}
+input:focus,
+textarea:focus {
+  border-color: #0071e3;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-in {
+  animation: fade-up 0.3s ease both;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #d2d2d7;
+  border-radius: 9999px;
+}

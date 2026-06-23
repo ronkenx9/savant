@@ -1,0 +1,6 @@
+allowBuilds:
+  bufferutil: false
+  es5-ext: false
+  keccak: false
+  sharp: false
+  utf-8-validate: false
